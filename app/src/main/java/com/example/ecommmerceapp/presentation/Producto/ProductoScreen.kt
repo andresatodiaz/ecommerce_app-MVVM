@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,7 @@ import com.example.ecommmerceapp.data.Entities.Producto
 import com.example.ecommmerceapp.data.Entities.Usuario
 import com.example.ecommmerceapp.presentation.Home.ViewModel.HomeViewModel
 import com.example.ecommmerceapp.presentation.Perfil.ViewModel.PerfilViewModel
+import com.example.ecommmerceapp.presentation.Producto.ViewModel.ProductoViewModel
 import com.example.ecommmerceapp.ui.theme.cardBrown
 import com.example.ecommmerceapp.ui.theme.complementaryBrown
 import com.example.ecommmerceapp.ui.theme.priceColor
@@ -65,13 +67,12 @@ fun ProductoScreen(
     photo: String,
     producto:Producto,
     navController: NavController,
-    homeViewModel: HomeViewModel,
-    perfilViewModel: PerfilViewModel,
+    productoViewModel: ProductoViewModel,
     showQRScanner:MutableState<Boolean>
 ) {
     LaunchedEffect(key1 = true){
-        homeViewModel.vendedorProducto.value= Usuario()
-        homeViewModel.getVendedor(producto.vendidoPor!!)
+        productoViewModel.vendedor.value= Usuario()
+        productoViewModel.getData(producto.vendidoPor!!)
     }
 
     Log.i("photo",photo)
@@ -107,7 +108,8 @@ fun ProductoScreen(
             modifier= Modifier
                 .fillMaxWidth()
                 .padding(top = 230.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(bottom=100.dp)
         ){
             item{
                 Column(modifier= Modifier.fillMaxWidth(0.9f)) {
@@ -170,15 +172,11 @@ fun ProductoScreen(
                             .padding(10.dp)
                             .fillMaxWidth()
                     ) {
-                        if(homeViewModel.loadingVendedor.value || homeViewModel.vendedorProducto.value.id==""){
+                        if(productoViewModel.vendedor.value.id==""){
                             Text("Cargando vendedor")
                         }else{
-                            if(!homeViewModel.vendedorEmpty.value){
-                                Text(homeViewModel.vendedorProducto.value.nombre.capitalize()+" "+homeViewModel.vendedorProducto.value.apellido.capitalize())
-                                Text(homeViewModel.vendedorProducto.value.correo, fontWeight = FontWeight.Bold)
-                            }else{
-                                Text("Usuario no disponible")
-                            }
+                            Text(productoViewModel.vendedor.value.nombre.capitalize()+" "+productoViewModel.vendedor.value.apellido.capitalize())
+                            Text(productoViewModel.vendedor.value.correo, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -191,13 +189,12 @@ fun ProductoScreen(
                 ){
                     Column(modifier=Modifier.width(150.dp)){
                         Button(
-                            enabled = producto.vendidoPor!=perfilViewModel.myUser.value.id,
+                            enabled = producto.vendidoPor!=productoViewModel.usuario.value.id,
                             onClick = {
-                                if(producto.compradoPor!=perfilViewModel.myUser.value.id){
+                                if(producto.compradoPor!=productoViewModel.usuario.value.id){
                                     navController.navigate("compra")
                                 }else{
-                                    homeViewModel.comprarProducto(producto)
-                                    homeViewModel.getProductos()
+                                    productoViewModel.deshacer(producto)
                                     navController.navigate("home")
                                 }
 
@@ -208,7 +205,7 @@ fun ProductoScreen(
                                 contentColor = Color.Black
                             )
                         ) {
-                            if(producto.compradoPor!=perfilViewModel.myUser.value.id){
+                            if(producto.compradoPor!=productoViewModel.usuario.value.id){
                                 Text("Comprar")
                             }else{
                                 Text("Cancelar compra")
@@ -216,14 +213,12 @@ fun ProductoScreen(
                             Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = "compra",modifier=Modifier.padding(5.dp))
                         }
                         Spacer(modifier = Modifier.padding(5.dp))
-                        if(producto.vendidoPor==perfilViewModel.myUser.value.id){
+                        if(producto.vendidoPor==productoViewModel.usuario.value.id){
                             Button(
                                 onClick = {
                                     coroutine.launch {
-                                        homeViewModel.borrarProducto(producto)
+                                        productoViewModel.eliminar(producto)
                                         navController.navigate("home")
-                                        homeViewModel.getProductos()
-                                        homeViewModel.getMisProductos(perfilViewModel.myUser.value.id)
                                     }
                                 },
                                 modifier= Modifier.fillMaxWidth(),

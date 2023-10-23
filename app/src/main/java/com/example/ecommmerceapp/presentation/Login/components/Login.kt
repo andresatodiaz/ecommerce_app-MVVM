@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -48,7 +49,8 @@ fun Login(
             OutlinedTextField(
                 value = correo.value,
                 onValueChange = {correo.value=it},
-                modifier= Modifier.fillMaxWidth(),
+                modifier= Modifier.fillMaxWidth()
+                    .testTag("userTag"),
                 shape= CircleShape
             )
             Spacer(Modifier.padding(10.dp))
@@ -56,7 +58,8 @@ fun Login(
             OutlinedTextField(
                 value = contrasena.value,
                 onValueChange = {contrasena.value=it},
-                modifier= Modifier.fillMaxWidth(),
+                modifier= Modifier.fillMaxWidth()
+                    .testTag("passTag"),
                 shape= CircleShape
             )
             Spacer(Modifier.padding(10.dp))
@@ -72,7 +75,8 @@ fun Login(
                             }
                         }
                     },
-                    modifier= Modifier.fillMaxWidth(),
+                    modifier= Modifier.fillMaxWidth()
+                        .testTag("loginTag"),
                     colors=ButtonDefaults.buttonColors(
                         containerColor = complementaryBrown,
                         contentColor = Color.Black

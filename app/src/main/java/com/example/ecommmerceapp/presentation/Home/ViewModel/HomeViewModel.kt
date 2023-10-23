@@ -1,30 +1,56 @@
 package com.example.ecommmerceapp.presentation.Home.ViewModel
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ecommmerceapp.MainApplication
 import com.example.ecommmerceapp.data.Entities.Producto
 import com.example.ecommmerceapp.data.Entities.Usuario
+import com.example.ecommmerceapp.data.Repository.ProductoRepository
+import com.example.ecommmerceapp.data.Repository.UsuarioRepository
 import com.example.ecommmerceapp.data.Service.ProductoService
-import com.example.ecommmerceapp.data.Service.UserService
+import com.example.ecommmerceapp.data.Service.UsuarioService
+import com.example.ecommmerceapp.utils.MemoryConsumption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.Duration
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val productoService: ProductoService,
-    private val userService: UserService
+    private val usuarioService: UsuarioService,
+    private val productoRepository: ProductoRepository,
+    private val usuarioRepository: UsuarioRepository
 ): ViewModel() {
-    val productos = mutableStateOf(emptyList<Producto>())
+
     val isLoading = mutableStateOf(false)
     val vendedorProducto = mutableStateOf(Usuario())
     val loadingVendedor= mutableStateOf(false)
     val vendedorEmpty = mutableStateOf(false)
     val misProductos= mutableStateOf(emptyList<Producto>())
+
+    val refreshing = mutableStateOf(true)
+    val usuario = mutableStateOf(Usuario())
+    val productos = mutableStateOf(emptyList<Producto>())
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getData(){
+        refreshing.value=true
+        viewModelScope.launch {
+            val startTime = LocalTime.now()
+            usuario.value = usuarioRepository.getMyUser()
+            productos.value= productoRepository.getProductos()!!
+            refreshing.value=false
+            Log.i("comp-ExecutionTime", Duration.between(startTime,LocalTime.now()).toMillis().toString())
+            Log.i("comp-MemoryConsump", MemoryConsumption().getUsedMemorySize().toString())
+        }
+    }
 
     fun getProductos(){
         viewModelScope.launch {
@@ -37,6 +63,8 @@ class HomeViewModel @Inject constructor(
             isLoading.value=false
         }
     }
+
+
 
     fun getMisProductos(id:String){
         viewModelScope.launch {
@@ -81,15 +109,48 @@ class HomeViewModel @Inject constructor(
 
     fun getVendedor(id:String){
         viewModelScope.launch {
-            if(userService.getVendedor(id)!=null){
+            if(usuarioService.getVendedor(id)!=null){
                 loadingVendedor.value=true
-                if(userService.getVendedor(id)==null){
+                if(usuarioService.getVendedor(id)==null){
                     vendedorEmpty.value=true
                 }else{
-                    vendedorProducto.value=userService.getVendedor(id)!!
+                    vendedorProducto.value=usuarioService.getVendedor(id)!!
                 }
                 loadingVendedor.value=false
             }
         }
+    }
+
+    fun testProductos(){
+        productos.value= listOf(
+            Producto(
+                "1",
+                "prod1",
+                "prod1",
+                "10",
+                10
+            ),
+            Producto(
+                "2",
+                "prod2",
+                "prod2",
+                "20",
+                10
+            ),
+            Producto(
+                "3",
+                "prod3",
+                "prod3",
+                "30",
+                10
+            ),
+            Producto(
+                "4",
+                "prod4",
+                "prod4",
+                "40",
+                10
+            )
+        )
     }
 }

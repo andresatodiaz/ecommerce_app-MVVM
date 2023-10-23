@@ -62,7 +62,6 @@ import kotlinx.coroutines.launch
 fun CrearProductoScreen(
     navController: NavController,
     venderViewModel: VenderViewModel,
-    homeViewModel: HomeViewModel
 ) {
     val titulo = remember{ mutableStateOf("") }
     val descripcion = remember{ mutableStateOf("") }
@@ -226,7 +225,6 @@ fun CrearProductoScreen(
                                 descripcion.value=""
                                 precio.value=""
                                 estado.value=""
-                                homeViewModel.getProductos()
                                 navController.navigate("home")
                             }
                         },

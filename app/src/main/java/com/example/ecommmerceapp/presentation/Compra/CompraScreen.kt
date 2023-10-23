@@ -1,7 +1,9 @@
 package com.example.ecommmerceapp.presentation.Compra
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -55,6 +57,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.ecommmerceapp.data.Entities.Producto
+import com.example.ecommmerceapp.presentation.Compra.ViewModel.CompraViewModel
 import com.example.ecommmerceapp.presentation.Home.ViewModel.HomeViewModel
 import com.example.ecommmerceapp.presentation.QrScanner.ViewModel.QrScannerViewModel
 import com.example.ecommmerceapp.presentation.Signature.DigitalInkViewModel
@@ -65,10 +68,14 @@ import com.example.ecommmerceapp.presentation.Signature.use
 import com.example.ecommmerceapp.ui.theme.cardBrown
 import com.example.ecommmerceapp.ui.theme.complementaryBrown
 import com.example.ecommmerceapp.ui.theme.mainBrown
+import com.example.ecommmerceapp.utils.MemoryConsumption
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +83,7 @@ fun CompraScreen(
     photo: String,
     producto: Producto,
     navController: NavController,
-    homeViewModel: HomeViewModel,
+    compraViewModel: CompraViewModel,
     qrScannerViewModel: QrScannerViewModel,
     digitalInkViewModel: DigitalInkViewModel
 ) {
@@ -87,6 +94,8 @@ fun CompraScreen(
 
     LaunchedEffect(key1 = true ){
         event(DigitalInkViewModel.Event.ResetText)
+        qrScannerViewModel.getExecutionTime()
+        qrScannerViewModel.getMemoryUsage()
     }
 
     DisposableEffect(Unit) {
@@ -103,7 +112,7 @@ fun CompraScreen(
 
 
     LaunchedEffect(key1 = true){
-        homeViewModel.getVendedor(producto.vendidoPor!!)
+        compraViewModel.getVendedor(producto.vendidoPor!!)
         discountLink.value=qrScannerViewModel.qrLink.value
         Log.i("barcode2",qrScannerViewModel.qrLink.value)
 
@@ -115,8 +124,7 @@ fun CompraScreen(
                 shape= CircleShape,
                 modifier=Modifier.padding(bottom = 70.dp),
                 onClick = {
-                    homeViewModel.comprarProducto(producto)
-                    homeViewModel.getProductos()
+                    compraViewModel.comprar(producto)
                     navController.navigate("home")
                           },
                 containerColor = complementaryBrown
@@ -171,8 +179,8 @@ fun CompraScreen(
                                     .size(100.dp)
                             )
                             Column(modifier=Modifier.padding(start=10.dp)) {
-                                Text(homeViewModel.vendedorProducto.value.nombre.capitalize()+" "+homeViewModel.vendedorProducto.value.apellido.capitalize())
-                                Text(homeViewModel.vendedorProducto.value.correo, fontWeight = FontWeight.Black)
+                                Text(compraViewModel.vendedor.value.nombre.capitalize()+" "+compraViewModel.vendedor.value.apellido.capitalize())
+                                Text(compraViewModel.vendedor.value.correo, fontWeight = FontWeight.Black)
                             }
 
                         }
@@ -240,6 +248,8 @@ fun CompraScreen(
                         Button(
                             onClick = {
                                 navController.navigate("qrscanner")
+                                qrScannerViewModel.startEx.value=LocalTime.now()
+                                qrScannerViewModel.startRam.value= MemoryConsumption().getUsedMemorySize()
                             },
                             modifier= Modifier.fillMaxWidth(),
                             colors= ButtonDefaults.buttonColors(

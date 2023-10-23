@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -80,19 +81,13 @@ fun HomeScreen(
     navController: NavController,
     selectedProducto:MutableState<Producto>,
     selectedProductoUrl:MutableState<String>,
-    homeViewModel: HomeViewModel,
-    perfilViewModel: PerfilViewModel
+    homeViewModel: HomeViewModel
 ) {
     val id = remember{mutableStateOf("")}
     val productoSelected = remember{ mutableStateOf(0) }
-    val swipeRefreshState  = rememberSwipeRefreshState(isRefreshing = homeViewModel.isLoading.value)
+    val swipeRefreshState  = rememberSwipeRefreshState(isRefreshing = homeViewModel.refreshing.value)
     LaunchedEffect(key1 = true){
-        if(homeViewModel.productos.value.isEmpty()){
-            homeViewModel.getProductos()
-        }
-        if(perfilViewModel.myUser.value.nombre.isEmpty()){
-            perfilViewModel.getMyUser()
-        }
+        homeViewModel.getData()
         val sp = MainApplication.applicationContext().getSharedPreferences(
             "preferences",
             Context.MODE_PRIVATE
@@ -100,11 +95,6 @@ fun HomeScreen(
         id.value=sp.getString("LOGGED_ID","")!!
     }
 
-    LaunchedEffect(key1 = perfilViewModel.myUser.value.id){
-        if(homeViewModel.misProductos.value.isEmpty()){
-            homeViewModel.getMisProductos(perfilViewModel.myUser.value.id)
-        }
-    }
 
     val brightness = -80f
     val colorMatrix = floatArrayOf(
@@ -150,6 +140,7 @@ fun HomeScreen(
             ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2) ,
+                    modifier=Modifier.testTag("homeSwipe"),
                     contentPadding = PaddingValues(top=10.dp,start=10.dp,end=10.dp,bottom=80.dp)
                 ){
                     item(
@@ -170,7 +161,7 @@ fun HomeScreen(
                                 Text(text=buildAnnotatedString {
                                     append("Bienvenido ")
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)){
-                                        append(perfilViewModel.myUser.value.nombre.capitalize()+" "+perfilViewModel.myUser.value.apellido.capitalize())
+                                        append(homeViewModel.usuario.value.nombre.capitalize()+" "+homeViewModel.usuario.value.apellido.capitalize())
                                     }
 
                                 },color=Color.Black)
@@ -207,7 +198,7 @@ fun HomeScreen(
                         }
                     }
                     if(homeViewModel.productos.value.isEmpty()){
-                        if (homeViewModel.isLoading.value){
+                        if (homeViewModel.refreshing.value){
                             item{
                                 Text("Cargando productos...", modifier = Modifier.padding(top=10.dp,start=10.dp))
                             }
@@ -220,7 +211,14 @@ fun HomeScreen(
                         homeViewModel.productos.value.forEachIndexed { index, producto ->
                             item{
                                 Card(
-                                    modifier= Modifier
+                                    modifier= if(index==0) Modifier
+                                        .padding(5.dp)
+                                        .clickable {
+                                            selectedProducto.value = producto
+                                            selectedProductoUrl.value =
+                                                "https://picsum.photos/id/${index}/200/200/?blur=2"
+                                            navController.navigate("producto")
+                                        }.testTag("homeTag") else Modifier
                                         .padding(5.dp)
                                         .clickable {
                                             selectedProducto.value = producto

@@ -72,12 +72,11 @@ fun PerfilScreen(
     finishActivity : Unit,
     flagKillActivity : MutableState<Boolean>,
     perfilViewModel: PerfilViewModel,
-    homeViewModel: HomeViewModel,
     navController:NavController,
     selectedProducto:MutableState<Producto>,
     selectedProductoUrl:MutableState<String>,
 ) {
-    val swipeRefreshState  = rememberSwipeRefreshState(isRefreshing = homeViewModel.isLoading.value)
+    val swipeRefreshState  = rememberSwipeRefreshState(isRefreshing = perfilViewModel.refreshing.value)
     val context= LocalContext.current
     val coroutine = rememberCoroutineScope()
     val brightness = -50f
@@ -88,8 +87,8 @@ fun PerfilScreen(
         0f, 0f, 0f, 1f, 0f
     )
     LaunchedEffect(key1 = true){
-        if(perfilViewModel.myUser.value.nombre.isEmpty()){
-            perfilViewModel.getMyUser()
+        if(perfilViewModel.usuario.value.nombre.isEmpty()){
+            perfilViewModel.getData()
         }
         Log.i("nombre",perfilViewModel.myUser.value.nombre.toString())
     }
@@ -112,7 +111,7 @@ fun PerfilScreen(
             verticalAlignment = Alignment.CenterVertically
         ){
             Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "person",tint=Color.White,modifier=Modifier.padding(end=10.dp))
-            Text(perfilViewModel.myUser.value.nombre.capitalize()+" "+perfilViewModel.myUser.value.apellido.capitalize(),
+            Text(perfilViewModel.usuario.value.nombre.capitalize()+" "+perfilViewModel.usuario.value.apellido.capitalize(),
                 fontWeight = FontWeight.Black,
                 color = Color.White,
                 fontSize = 30.sp
@@ -146,7 +145,7 @@ fun PerfilScreen(
         SwipeRefresh(
             state = swipeRefreshState,
             onRefresh = {
-                homeViewModel.getMisProductos(perfilViewModel.myUser.value.id)
+                perfilViewModel.getData()
             },
             indicator = { state, trigger ->
                 SwipeRefreshIndicator(
@@ -169,27 +168,27 @@ fun PerfilScreen(
                 item{
                     Column(modifier= Modifier.fillMaxWidth(0.9f)) {
                         Text("Correo", fontWeight = FontWeight.Bold)
-                        Text(perfilViewModel.myUser.value.correo)
+                        Text(perfilViewModel.usuario.value.correo)
                     }
                     Spacer(Modifier.padding(10.dp))
                 }
                 item{
                     Column(modifier= Modifier.fillMaxWidth(0.9f)) {
                         Text("Contrasena", fontWeight = FontWeight.Bold)
-                        Text(perfilViewModel.myUser.value.contrasena)
+                        Text(perfilViewModel.usuario.value.contrasena)
                     }
                     Spacer(Modifier.padding(10.dp))
                 }
                 item{
                     Text("Mis productos", fontWeight = FontWeight.Bold,modifier=Modifier.fillMaxWidth(0.9f))
-                    if(homeViewModel.misProductos.value.isEmpty()){
+                    if(perfilViewModel.productos.value.isEmpty()){
                         Text("No hay productos",modifier= Modifier
                             .padding(top = 10.dp)
                             .fillMaxWidth(0.9f),color=Color.Gray)
                     }
                     Spacer(Modifier.padding(10.dp))
                 }
-                itemsIndexed(homeViewModel.misProductos.value){index,producto->
+                itemsIndexed(perfilViewModel.productos.value){index,producto->
                     Card(
                         modifier= Modifier
                             .padding(5.dp, 5.dp, 5.dp, 10.dp)
