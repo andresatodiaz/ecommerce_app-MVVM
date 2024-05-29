@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.ecommmerceapp'
+    namespace 'com.mvvm.ecommmerceapp'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.ecommmerceapp"
+        applicationId "com.mvvm.ecommmerceapp"
         minSdk 24
         targetSdk 34
         versionCode 1
@@ -27,6 +27,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
     compileOptions {
