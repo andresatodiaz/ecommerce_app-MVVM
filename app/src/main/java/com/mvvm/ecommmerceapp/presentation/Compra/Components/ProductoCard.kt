@@ -16,7 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.mvi.ecommmerceapp.domain.Entities.Producto
+import com.mvvm.ecommmerceapp.domain.Entities.Producto
 
 @Composable
 fun ProductoCard(

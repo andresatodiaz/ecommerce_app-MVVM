@@ -11,8 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mvi.ecommmerceapp.presentation.Compra.Intent.CompraContract
-import com.mvi.ecommmerceapp.ui.theme.complementaryBrown
+import com.mvvm.ecommmerceapp.ui.theme.complementaryBrown
 
 @Composable
 fun CompraFloatingButton(

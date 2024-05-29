@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mvi.ecommmerceapp.ui.theme.cardBrown
-import com.mvi.ecommmerceapp.ui.theme.mainBrown
+import com.mvvm.ecommmerceapp.ui.theme.cardBrown
+import com.mvvm.ecommmerceapp.ui.theme.mainBrown
 
 @Composable
 fun ConfirmacionCard(
