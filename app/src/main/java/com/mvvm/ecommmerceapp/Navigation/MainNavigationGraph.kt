@@ -1,6 +1,8 @@
 package com.mvvm.ecommmerceapp.Navigation
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -28,6 +30,7 @@ import com.mvvm.ecommmerceapp.presentation.QrScanner.ViewModel.QrScannerViewMode
 import com.mvvm.ecommmerceapp.presentation.Signature.DigitalInkViewModel
 import com.mvvm.ecommmerceapp.presentation.Signature.DigitalInkViewModelImpl
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalGetImage
 @Composable
 fun MainNavigationGraph(
@@ -53,22 +56,30 @@ fun MainNavigationGraph(
         ) {
         composable("home"){
             qrScannerViewModel.qrLink.value=""
-            HomeScreen(navController,selectedProducto,selectedProductoUrl,homeViewModel)
+            HomeScreen(
+                navController=navController,
+                selectedProducto=selectedProducto,
+                selectedProductoUrl=selectedProductoUrl,
+                homeViewModel=homeViewModel
+            )
         }
         composable("discover"){
             DiscoverScreen(discoverViewModel)
         }
         composable("profile"){
             PerfilScreen(
-                finishActivity,
-                flagKillActivity,
-                perfilViewModel,
-                navController,selectedProducto,selectedProductoUrl
+                finishActivity=finishActivity,
+                flagKillActivity=flagKillActivity,
+                perfilViewModel=perfilViewModel,
+                navController=navController,
+                selectedProducto=selectedProducto,
+                selectedProductoUrl=selectedProductoUrl
             )
         }
         composable("vender"){
-            CrearProductoScreen(navController,
-                venderViewModel,
+            CrearProductoScreen(
+                navController=navController,
+                venderViewModel=venderViewModel,
             )
         }
         composable("producto"){
@@ -102,7 +113,10 @@ fun MainNavigationGraph(
             BackHandler {
                 navController.navigate("producto")
             }
-            QrScannerScreen(navController,qrScannerViewModel)
+            QrScannerScreen(
+                navController=navController,
+                qrScannerViewModel=qrScannerViewModel
+            )
         }
     }
 

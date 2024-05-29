@@ -1,7 +1,6 @@
 package com.mvvm.ecommmerceapp.data.Repository
 
 import android.content.Context
-import android.util.Log
 import com.mvvm.ecommmerceapp.MainApplication
 import com.mvvm.ecommmerceapp.domain.Entities.Producto
 import com.mvvm.ecommmerceapp.data.Service.ProductoService
@@ -11,21 +10,20 @@ class ProductoRepositoryImpl(
     private val productoService: ProductoService
 ):ProductoRepository {
     override suspend fun getProductos(): List<Producto>? {
-        if(productoService.getProductos().isNullOrEmpty()){
-            return emptyList()
+        return if(productoService.getProductos().isNullOrEmpty()){
+            emptyList()
         }else{
-            Log.i("productosRep", productoService.getProductos().toString())
-            return productoService.getProductos()?.sortedBy { producto->
+            productoService.getProductos()?.sortedBy { producto->
                 producto.precio.toInt()
             }
         }
     }
 
     override suspend fun getMisProductos(id: String): List<Producto> {
-        if(productoService.getProductos().isNullOrEmpty()){
-            return emptyList()
+        return if(productoService.getProductos().isNullOrEmpty()){
+            emptyList()
         }else{
-            return productoService.getProductos()!!.filter {producto->
+            productoService.getProductos()!!.filter {producto->
                 producto.vendidoPor==id
             }
         }
